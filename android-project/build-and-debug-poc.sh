@@ -41,5 +41,18 @@ echo "Launching LLDB and attaching..."
   "$SYMBOLS_BINARY" \
   -o "gdb-remote localhost:$PORT"
 
-# Cleanup on exit (optional: kill server when you quit lldb)
-trap 'adb shell kill $SERVER_PID 2>/dev/null; adb forward --remove tcp:"$PORT"' EXIT
+# Cleanup function
+cleanup() {
+    echo "Cleaning up debug session..."
+
+    # Remove old binaries
+    adb shell "rm -f $REMOTE_DIR/lldb-server $REMOTE_DIR/$BINARY_NAME"
+
+    # Remove port forward
+    adb forward --remove tcp:"$PORT" 2>/dev/null
+
+    echo "Cleanup complete."
+}
+
+# === Step 5: Cleanup on exit ===
+trap cleanup EXIT INT TERM

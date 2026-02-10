@@ -15,16 +15,6 @@ export PATH=$ANDROID_NDK_HOME:$PATH
 If you're in an active terminal session, you can run `source ~/.zshrc` or `source ~/.bashrc` to reload the file which updates the environment variables.
 
 ## Step 3:
-Run `ndk-build NDK_DEBUG=1` from this folder
+Run `./build-and-debug-poc.sh` from this folder
 
-## Step 4:
-Push to device: `adb push libs/arm64-v8a/poc /data/local/tmp/poc`
-
-## Step 5:
-Launch shell: `adb shell`
-
-## Step 6:
-Go to folder: `cd /data/local/tmp`
-
-## Step 7:
-Run the program: `./poc`
+You should see a window with LLDB open up. You can type `continue` and press ENTER to continue the program or enter other commands for debugging. Running `quit` will stop the program (if it hasn't already crashed lol) and the debugger.

@@ -1,6 +1,59 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Functions
+ask_yes_no() {
+    local question="$1"
+    local default="${2:-N}"    # 'Y' or 'N'  (what happens when user just presses Enter)
+
+    local yn_prompt
+    case "$default" in
+        [Yy]* ) yn_prompt="[Y/n]" ;;
+        [Nn]* ) yn_prompt="[y/N]" ;;
+        *     ) yn_prompt="[y/n]" ;;
+    esac
+
+    local answer
+    while true; do
+        read -r -p "$question $yn_prompt " answer
+
+        # Handle empty input (just Enter)
+        [[ -z "$answer" ]] && answer="$default"
+
+        case "$answer" in
+            [Yy]* ) return 0 ;;    # yes → return success (0)
+            [Nn]* ) return 1 ;;    # no  → return failure (1)
+            *     ) echo "Please answer yes or no." >&2 ;;
+        esac
+    done
+}
+cleanup() {
+	# === Step 1: Quit debug server and debug process on device ===
+	echo "Killing program (PID: $DEBUG_PROGRAM_PID) and debug server (PID: $LLDB_SERVER_PID) on device..."
+	adb shell "kill $DEBUG_PROGRAM_PID $LLDB_SERVER_PID"
+
+	# === Step 2: Remove old binaries on device ===
+	echo "Removing old binaries on device..."
+	adb shell "rm -f $REMOTE_DIR/lldb-server $REMOTE_DIR/$BINARY_NAME"
+
+	# === Step 3: Remove old binaries on host ===
+	echo "Removing old binaries on host..."
+	ndk-build clean
+	rm -rf obj libs
+
+	# === Step 4: Remove port forward ===
+	echo "Removing all port forwards in adb..."
+	adb forward --remove-all
+
+	# === Step 5: Reboot device ===
+	if ask_yes_no "Cleanup complete. Do you want to reboot the device?" "N"; then
+		echo "Rebooting device..."
+		adb shell "reboot"
+	else
+		echo "Not rebooting device..."
+	fi
+}
+
 # === CONFIG ===
 PROJECT_DIR="$(pwd)/jni"
 BINARY_NAME="poc"
@@ -24,15 +77,21 @@ echo "Starting lldb-server on device (will launch poc on attach)..."
 adb forward tcp:$PORT tcp:$PORT
 adb shell "cd $REMOTE_DIR && ./lldb-server platform --listen *:$PORT --server" &
 
-# === Step 4: Launch the program to debug on device
-echo "Launching $BINARY_NAME on device"
+# === Step 4: Get PID of remote lldb-server ===
+echo "Getting PID of lldb-server on device..."
+LLDB_SERVER_PID="$(adb shell pidof lldb-server | awk '{print $1}')"
+echo "PID: $LLDB_SERVER_PID"
+
+# === Step 5: Launch the program to debug on device ===
+echo "Launching $BINARY_NAME on device..."
 adb shell "cd $REMOTE_DIR && ./$BINARY_NAME" &
 
-# === Step 5: Get PID of remote program ===
-echo "Getting PID of $BINARY_NAME on device"
+# === Step 6: Get PID of remote program ===
+echo "Getting PID of $BINARY_NAME on device..."
 DEBUG_PROGRAM_PID="$(adb shell pidof $BINARY_NAME | awk '{print $1}')"
+echo "PID: $DEBUG_PROGRAM_PID"
 
-# === Step 6: Launch host lldb, connect, attach ===
+# === Step 7: Launch host lldb, connect, attach ===
 echo "Launching LLDB and attaching..."
 "$HOST_LLDB" \
   "$SYMBOLS_BINARY" \
@@ -40,22 +99,5 @@ echo "Launching LLDB and attaching..."
   -o "platform connect connect://localhost:5039" \
   -o "process attach -p $DEBUG_PROGRAM_PID"
 
-# Cleanup function
-cleanup() {
-    echo "Cleaning up debug session..."
-
-    # Remove old binaries
-    adb shell "rm -f $REMOTE_DIR/lldb-server $REMOTE_DIR/$BINARY_NAME"
-
-	# On host side too
-	ndk-build clean
-	rm -rf obj libs
-
-    # Remove port forward
-    adb forward --remove-all
-
-    echo "Cleanup complete."
-}
-
-# === Step 5: Cleanup on exit ===
+# === Step 8: Cleanup on exit ===
 trap cleanup EXIT INT TERM

@@ -10,36 +10,35 @@ HOST_LLDB=`which lldb`
 REMOTE_LLDB=`find "$ANDROID_NDK_HOME" -name lldb-server | grep aarch64`
 
 # === Step 1: Build with debug symbols ===
-echo "Building poc (debug)..."
+echo "Building $BINARY_NAME (debug)..."
 ndk-build NDK_DEBUG=1 APP_OPTIM=debug || { echo "Build failed!"; exit 1; }
-LOCAL_BINARY="libs/arm64-v8a/$BINARY_NAME"
 SYMBOLS_BINARY="obj/local/arm64-v8a/$BINARY_NAME"  # has full debug info
-if [[ ! -f "$LOCAL_BINARY" ]]; then
-  echo "Binary not found at $LOCAL_BINARY"; exit 1;
-fi
 
 # === Step 2: Push binary and lldb-server to device ===
 echo "Pushing $BINARY_NAME and lldb-server to device..."
-adb push "$LOCAL_BINARY" "$REMOTE_DIR/$BINARY_NAME"
-adb push "$REMOTE_LLDB"	"$REMOTE_DIR/lldb-server"
+adb push "$SYMBOLS_BINARY" "$REMOTE_DIR/$BINARY_NAME"
+adb push "$REMOTE_LLDB" "$REMOTE_DIR/lldb-server"
 
-# === Step 3: Start lldb-server on device in "launch on attach" mode ===
-adb forward tcp:"$PORT" tcp:"$PORT"
+# === Step 3: Start lldb-server on device ===
 echo "Starting lldb-server on device (will launch poc on attach)..."
-adb shell "cd $REMOTE_DIR && ./lldb-server g :$PORT -- ./$BINARY_NAME" &
+adb forward tcp:$PORT tcp:$PORT
+adb shell "cd $REMOTE_DIR && ./lldb-server platform --listen *:$PORT --server" &
 
-# === Step 4: Launch host lldb, connect, attach ===
-SERVER_PID=$!
-sleep 2  # give it time to start/listen
-# Check if server running
-if ! adb shell ps | grep -q lldb-server; then
-  echo "lldb-server failed to start! Check adb logcat."
-  exit 1
-fi
+# === Step 4: Launch the program to debug on device
+echo "Launching $BINARY_NAME on device"
+adb shell "cd $REMOTE_DIR && ./$BINARY_NAME" &
+
+# === Step 5: Get PID of remote program ===
+echo "Getting PID of $BINARY_NAME on device"
+DEBUG_PROGRAM_PID="$(adb shell pidof $BINARY_NAME | awk '{print $1}')"
+
+# === Step 6: Launch host lldb, connect, attach ===
 echo "Launching LLDB and attaching..."
 "$HOST_LLDB" \
   "$SYMBOLS_BINARY" \
-  -o "gdb-remote localhost:$PORT"
+  -o "platform select remote-android" \
+  -o "platform connect connect://localhost:5039" \
+  -o "process attach -p $DEBUG_PROGRAM_PID"
 
 # Cleanup function
 cleanup() {
@@ -48,8 +47,12 @@ cleanup() {
     # Remove old binaries
     adb shell "rm -f $REMOTE_DIR/lldb-server $REMOTE_DIR/$BINARY_NAME"
 
+	# On host side too
+	ndk-build clean
+	rm -rf obj libs
+
     # Remove port forward
-    adb forward --remove tcp:"$PORT" 2>/dev/null
+    adb forward --remove-all
 
     echo "Cleanup complete."
 }

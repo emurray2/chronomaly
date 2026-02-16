@@ -133,9 +133,11 @@ ask_yes_no() {
 }
 cleanup() {
 	local serial="$1"
-	# === Step 1: Quit debug server and debug process on device ===
+	# === Step 1: Quit debug server and logging on device ===
 	echo "Killing debug server (PID: $LLDB_SERVER_PID) on device..."
 	adb -s $serial shell "kill $LLDB_SERVER_PID"
+	echo "Killing device logging (PID: $LOGCAT_PID) on host..."
+	kill $LOGCAT_PID
 
 	# === Step 2: Remove old binaries on device ===
 	echo "Removing old binaries on device..."
@@ -201,7 +203,14 @@ echo "Getting PID of lldb-server on device..."
 LLDB_SERVER_PID="$(adb -s $serial shell pidof lldb-server | awk '{print $1}')"
 echo "PID: $LLDB_SERVER_PID"
 
-# === Step 5: Launch host lldb, connect, attach ===
+# === Step 5: Start logging ===
+echo "Starting logging for device $serial on host..."
+adb -s $serial logcat -c
+adb -s $serial logcat > "log_$(date).txt" &
+LOGCAT_PID=$(ps -A | awk '/logcat/ && !/awk|grep/ {print $1}')
+echo "PID: $LOGCAT_PID"
+
+# === Step 6: Launch host lldb, connect, attach ===
 echo "Launching LLDB and attaching..."
 "lldb" \
 -o "platform select remote-android" \
@@ -211,5 +220,5 @@ echo "Launching LLDB and attaching..."
 -o "platform process launch"
 
 
-# === Step 8: Cleanup on exit ===
+# === Step 7: Cleanup on exit ===
 trap 'cleanup $serial' EXIT INT TERM

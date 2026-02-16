@@ -17,4 +17,4 @@ If you're in an active terminal session, you can run `source ~/.zshrc` or `sourc
 ## Step 3:
 Run `./build-and-debug-poc.sh` from this folder
 
-You should see a window with LLDB open up. You can type `continue` and press ENTER to continue the program or enter other commands for debugging. Running `quit` will stop the program (if it hasn't already crashed lol) and the debugger.
+You will be asked to select any connected devices or emulators. Then if everything else was successful, you should see a window with LLDB open up showing the program in a paused state. You can type `continue` and press ENTER to continue the program or enter other commands for debugging. Running `quit` will stop the program (if it hasn't already crashed lol) and the debugger.

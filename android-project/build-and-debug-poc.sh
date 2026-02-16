@@ -134,8 +134,8 @@ ask_yes_no() {
 cleanup() {
 	local serial="$1"
 	# === Step 1: Quit debug server and debug process on device ===
-	echo "Killing program (PID: $DEBUG_PROGRAM_PID) and debug server (PID: $LLDB_SERVER_PID) on device..."
-	adb -s $serial shell "kill $DEBUG_PROGRAM_PID $LLDB_SERVER_PID"
+	echo "Killing debug server (PID: $LLDB_SERVER_PID) on device..."
+	adb -s $serial shell "kill $LLDB_SERVER_PID"
 
 	# === Step 2: Remove old binaries on device ===
 	echo "Removing old binaries on device..."
@@ -168,7 +168,6 @@ PROJECT_DIR="$(pwd)/jni"
 BINARY_NAME="poc"
 REMOTE_DIR="/data/local/tmp"
 PORT="5039"
-HOST_LLDB=`which lldb`
 REMOTE_LLDB=`find "$ANDROID_NDK_HOME" -name lldb-server | grep aarch64`
 
 # === Step 0: Generate build config files ===
@@ -189,8 +188,8 @@ write_build_files $serial $app_abi $app_platform $BINARY_NAME
 
 # === Step 1: Build with debug symbols ===
 echo "Building $BINARY_NAME (debug)..."
-ndk-build NDK_DEBUG=1 APP_OPTIM=debug || { echo "Build failed!"; exit 1; }
-SYMBOLS_BINARY="obj/local/arm64-v8a/$BINARY_NAME"  # has full debug info
+ndk-build || { echo "Build failed!"; exit 1; }
+SYMBOLS_BINARY="obj/local/$app_abi/$BINARY_NAME"  # has full debug info
 
 # === Step 2: Push binary and lldb-server to device ===
 echo "Pushing $BINARY_NAME and lldb-server to device..."
@@ -198,7 +197,7 @@ adb -s $serial push "$SYMBOLS_BINARY" "$REMOTE_DIR/$BINARY_NAME"
 adb -s $serial push "$REMOTE_LLDB" "$REMOTE_DIR/lldb-server"
 
 # === Step 3: Start lldb-server on device ===
-echo "Starting lldb-server on device (will launch poc on attach)..."
+echo "Starting lldb-server on device (will launch $BINARY_NAME on attach)..."
 adb -s $serial shell "cd $REMOTE_DIR && ./lldb-server platform --listen *:$PORT --server" &
 
 # === Step 4: Get PID of remote lldb-server ===
@@ -206,22 +205,15 @@ echo "Getting PID of lldb-server on device..."
 LLDB_SERVER_PID="$(adb -s $serial shell pidof lldb-server | awk '{print $1}')"
 echo "PID: $LLDB_SERVER_PID"
 
-# === Step 5: Launch the program to debug on device ===
-echo "Launching $BINARY_NAME on device..."
-adb -s $serial shell "cd $REMOTE_DIR && ./$BINARY_NAME" &
-
-# === Step 6: Get PID of remote program ===
-echo "Getting PID of $BINARY_NAME on device..."
-DEBUG_PROGRAM_PID="$(adb -s $serial shell pidof $BINARY_NAME | awk '{print $1}')"
-echo "PID: $DEBUG_PROGRAM_PID"
-
-# === Step 7: Launch host lldb, connect, attach ===
+# === Step 5: Launch host lldb, connect, attach ===
 echo "Launching LLDB and attaching..."
-"$HOST_LLDB" \
-  "$SYMBOLS_BINARY" \
-  -o "platform select remote-android" \
-  -o "platform connect connect://$serial:5039" \
-  -o "process attach -p $DEBUG_PROGRAM_PID"
+"lldb" \
+-o "platform select remote-android" \
+-o "platform connect connect://$serial:$PORT" \
+-o "target create $BINARY_NAME" \
+-o "b main" \
+-o "platform process launch"
+
 
 # === Step 8: Cleanup on exit ===
 trap 'cleanup $serial' EXIT INT TERM

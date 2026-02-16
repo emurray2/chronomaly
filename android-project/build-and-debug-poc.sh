@@ -150,11 +150,7 @@ cleanup() {
 	echo "Removing build configs..."
 	rm -rf jni
 
-	# === Step 5: Remove port forward ===
-	echo "Removing all port forwards in adb..."
-	adb -s $serial forward --remove-all
-
-	# === Step 6: Reboot device ===
+	# === Step 5: Reboot device ===
 	if ask_yes_no "Cleanup complete. Do you want to reboot the device?" "N"; then
 		echo "Rebooting device..."
 		adb -s $serial shell "reboot"

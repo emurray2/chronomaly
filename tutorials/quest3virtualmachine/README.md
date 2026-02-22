@@ -13,7 +13,7 @@ This tutorial should be followed on a machine as close to Linux as possible for 
 
 Note: **The following setup was done on a Linux x86_64 machine running Ubuntu Studio 24.04.**
 
-Additional sidenote: _This tutorial is based of the [README.meta.md](https://github.com/emurray2/oculus-linux-kernel/README.meta.md) found in the [oculus-linux-kernel](https://github.com/emurray2/oculus-linux-kernel) submodule of this repository. To clone in this repository, run `git submodule update --init --recursive`_
+Additional sidenote: _This tutorial is based of the [README.meta.md](https://github.com/emurray2/oculus-linux-kernel/blob/quest3-buggy-kernel/README.meta.md) found in the [oculus-linux-kernel](https://github.com/emurray2/oculus-linux-kernel) submodule of this repository. To clone in this repository, run `git submodule update --init --recursive`_
 
 ## Step 1: Clone android toolchains
 ```sh

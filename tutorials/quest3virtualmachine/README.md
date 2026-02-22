@@ -13,7 +13,7 @@ This tutorial should be followed on a machine as close to Linux as possible for 
 
 Note: **The following setup was done on a Linux x86_64 machine running Ubuntu Studio 24.04.**
 
-Additional sidenote: _This tutorial is based of the README.meta.md found in the [oculus-linux-kernel](../../oculus-linux-kernel) submodule of this repository. To clone in this repository, run `git submodule update --init --recursive`_
+Additional sidenote: _This tutorial is based of the [README.meta.md](https://github.com/emurray2/oculus-linux-kernel/README.meta.md) found in the [oculus-linux-kernel](https://github.com/emurray2/oculus-linux-kernel) submodule of this repository. To clone in this repository, run `git submodule update --init --recursive`_
 
 ## Step 1: Clone android toolchains
 ```sh
@@ -23,18 +23,7 @@ git clone --depth=1 -b android12L-release https://android.googlesource.com/platf
 
 First one is the clang compiler for the host (x86_64). Second is for the ARM cross compiler (aarch64). If machine is already ARM--cross compilation is not necessary.
 
-## Step 2: Install necessary packages for android development (not required for this tutorial, but helps with `android-project` folder and debugging android devices in general.)
-
-### ADB (Android Debug Bridge)
-`sudo apt install android-sdk-platform-tools-common`
-
-### Android NDK (Native Development Kit)
-Download here and add it as `$ANDROID_NDK_HOME` to path: [https://developer.android.com/ndk/downloads](https://developer.android.com/ndk/downloads)
-
-### LLDB (Low Level Debugger)
-`sudo apt install lldb`
-
-## Step 3: Install necessary packages for this tutorial
+## Step 2: Install build packages
 
 ### Bison (GNU Parser Generator)
 `sudo apt install bison`
@@ -58,8 +47,8 @@ Tip: **If some packages are not found or the host system is entirely different f
 
 Additional tip: _If the host system Debian based, missing packages can often be found using `apt search foo` or `apt search bar`. A similar approach may be applied to any package manager. Run the package manager with the `--help` flag or `-h` to see if a search command is possible._
 
-## Step 4: Compile the kernel
-Navigate to the [oculus-quest-kernel](../../oculus-quest-kernel) root and run the script below with the following arguments:
+## Step 3: Compile the kernel
+Navigate to the [oculus-linux-kernel](https://github.com/emurray2/oculus-linux-kernel) root and run the script below with the following arguments:
 
 1. Path to host compiler - can be set to one of the clang revisions
 2. Path to cross compiler
@@ -69,7 +58,7 @@ Navigate to the [oculus-quest-kernel](../../oculus-quest-kernel) root and run th
 Full command: `./q3_build_script.sh ~/linux-x86/clang-r416183b1 ~/aarch64-linux-android-4.9 . q3linuxkernelbuild`
 
 ## Step 5: Build or get a minimal initramfs (root filesystem)
-This allows for basic command line utilities to be used and sets up a root filesystem for the kernel. Android and Meta use ToyBox: [https://en.wikipedia.org/wiki/Toybox](https://en.wikipedia.org/wiki/Toybox). This tutorial will follow BusyBox ([https://en.wikipedia.org/wiki/BusyBox](https://en.wikipedia.org/wiki/BusyBox)) which is very similar.
+This allows for basic command line utilities to be used and sets up a root filesystem for the kernel. Android and Meta use Toybox: [https://en.wikipedia.org/wiki/Toybox](https://en.wikipedia.org/wiki/Toybox). This tutorial will follow BusyBox ([https://en.wikipedia.org/wiki/BusyBox](https://en.wikipedia.org/wiki/BusyBox)) which is very similar.
 
 ### Clone BusyBox
 `git clone https://git.busybox.net/busybox -b 1_36_stable`
@@ -80,7 +69,7 @@ This allows for basic command line utilities to be used and sets up a root files
 ### Configure for static binary build
 `make menuconfig`
 
-Then navigate to Busybox Settings -> Build Options and enable: Build BusyBox as a static binary (no shared libs)
+Then navigate to BusyBox Settings -> Build Options and enable: Build BusyBox as a static binary (no shared libs)
 
 ### Disable TC (Traffic Control) in config -- (Optional, but may cause build errors on newer Linux kernels--as the header files are missing)
 

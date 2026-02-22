@@ -8,8 +8,20 @@ Use of this software is at your own risk, may brick your device, void warranties
 
 # Android project (for easy building)
 
-## Step 1:
-Download NDK: [https://developer.android.com/ndk/downloads](https://developer.android.com/ndk/downloads)
+## Step 1 Download development utilities:
+
+### ADB (Android Debug Bridge)
+`sudo apt install android-sdk-platform-tools-common`
+
+### Android NDK (Native Development Kit)
+Download here: [https://developer.android.com/ndk/downloads](https://developer.android.com/ndk/downloads)
+
+### LLDB (Low Level Debugger)
+`sudo apt install lldb`
+
+Tip: **If some packages are not found a Google search or using an alternative package manager or platform to obtain packages, such as Homebrew ([https://brew.sh/](https://brew.sh/) - macOS) or WSL ([https://learn.microsoft.com/en-us/windows/wsl/install](https://learn.microsoft.com/en-us/windows/wsl/install) - Windows) may suffice**
+
+Additional tip: _Missing packages can often be found on Debian systems using `apt search foo` or `apt search bar`. A similar approach may be applied to any package manager. Run the package manager with the `--help` flag or `-h` to see if a search command is possible._
 
 ## Step 2:
 Edit your path (i.e. `.zshrc` or `.bashrc`) to point to the NDK

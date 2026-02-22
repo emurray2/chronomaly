@@ -1,0 +1,3 @@
+[submodule "oculus-linux-kernel"]
+	path = oculus-linux-kernel
+	url = https://github.com/emurray2/oculus-linux-kernel

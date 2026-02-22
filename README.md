@@ -1,3 +1,17 @@
+# Introduction
+
+This repository serves as a fork of the repository described below under the title "Chronomaly". You can find the original repos and authors in the commit history of this repository.
+
+# LEGAL NOTICE
+
+[exploit.c](exploit.c) may circumvent certain technological protection measures if used improperly and is provided **strictly** under the narrow DMCA exemption for interoperability/software removal on lawfully owned devices (37 C.F.R. § 201.40(b)(9), effective as of October 28, 2024) [https://www.ecfr.gov/current/title-37/part-201/section-201.40#p-201.40(b)(9)](https://www.ecfr.gov/current/title-37/part-201/section-201.40#p-201.40(b)(9)), as well as in compliance with the Computer Fraud and Abuse Act (18 U.S.C. § 1030) [https://www.justice.gov/jm/jm-9-48000-computer-fraud](https://www.justice.gov/jm/jm-9-48000-computer-fraud)
+
+By viewing, downloading, modifying, or redistributing this repository, you agree to the terms set forth in [DISCLAIMER.md](DISCLAIMER.md).
+
+Use of this software is at your own risk, may brick your device, void warranties, and must comply with all applicable laws in your jurisdiction (including outside the US, where no DMCA exemption applies).
+
+This project is for personal, non-commercial research and experimentation only.
+
 # Chronomaly
 
 Chronomaly is a kernel exploit for the Android / Linux kernel using CVE-2025-38352. The exploit was written specifically for Linux kernel v5.10.157, but should work against all vulnerable v5.10.x kernels, as it does not require any specific kernel text offsets to work.

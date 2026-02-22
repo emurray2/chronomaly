@@ -1,8 +1,19 @@
+# LEGAL NOTICE
+
+[exploit.c](../../exploit.c) may circumvent certain technological protection measures if used improperly and is provided **strictly** under the narrow DMCA exemption for interoperability/software removal on lawfully owned devices (37 C.F.R. § 201.40(b)(9), effective as of October 28, 2024) [https://www.ecfr.gov/current/title-37/part-201/section-201.40#p-201.40(b)(9)](https://www.ecfr.gov/current/title-37/part-201/section-201.40#p-201.40(b)(9)), as well as in compliance with the Computer Fraud and Abuse Act (18 U.S.C. § 1030) [https://www.justice.gov/jm/jm-9-48000-computer-fraud](https://www.justice.gov/jm/jm-9-48000-computer-fraud)
+
+By viewing, downloading, modifying, or redistributing this repository, you agree to the terms set forth in [DISCLAIMER.md](../../DISCLAIMER.md).
+
+Use of this software is at your own risk, may brick your device, void warranties, and must comply with all applicable laws in your jurisdiction (including outside the US, where no DMCA exemption applies).
+
+This project is for personal, non-commercial research and experimentation only.
+
 # Quest 3 Kernel Build (for QEMU on Linux x86_64 -- or similar)
 This tutorial should be followed on a machine as close to Linux as possible for best results. However, there are probably ways for other OS (i.e. WSL for Windows, Homebrew for macOS, etc.)
 
 Note: **The following setup was done on a Linux x86_64 machine running Ubuntu Studio 24.04.**
-Additional sidenote: _This tutorial is based of the README.meta.md found in the oculus-linux-kernel submodule of this repository. To clone in this repository, run `git submodule update --init --recursive`_
+
+Additional sidenote: _This tutorial is based of the README.meta.md found in the [oculus-linux-kernel](../../oculus-linux-kernel) submodule of this repository. To clone in this repository, run `git submodule update --init --recursive`_
 
 ## Step 1: Clone android toolchains
 ```sh
@@ -44,10 +55,11 @@ Download here and add it as `$ANDROID_NDK_HOME` to path: [https://developer.andr
 `sudo apt install qemu && sudo apt install qemu-system-arm`
 
 Tip: **If some packages are not found or the host system is entirely different from that as described above, a Google search or using an alternative package manager such as Homebrew ([https://brew.sh/](https://brew.sh/) - macOS) may suffice**
+
 Additional tip: _If the host system Debian based, missing packages can often be found using `apt search foo` or `apt search bar`. A similar approach may be applied to any package manager. Run the package manager with the `--help` flag or `-h` to see if a search command is possible._
 
 ## Step 4: Compile the kernel
-Navigate to the oculus-quest-kernel root and run the script below with the following arguments:
+Navigate to the [oculus-quest-kernel](../../oculus-quest-kernel) root and run the script below with the following arguments:
 
 1. Path to host compiler - can be set to one of the clang revisions
 2. Path to cross compiler

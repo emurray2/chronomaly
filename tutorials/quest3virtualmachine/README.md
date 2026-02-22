@@ -57,7 +57,7 @@ Navigate to the [oculus-linux-kernel](https://github.com/emurray2/oculus-linux-k
 
 Full command: `./q3_build_script.sh ~/linux-x86/clang-r416183b1 ~/aarch64-linux-android-4.9 . q3linuxkernelbuild`
 
-## Step 5: Build or get a minimal initramfs (root filesystem)
+## Step 4: Build or get a minimal initramfs (root filesystem)
 This allows for basic command line utilities to be used and sets up a root filesystem for the kernel. Android and Meta use Toybox: [https://en.wikipedia.org/wiki/Toybox](https://en.wikipedia.org/wiki/Toybox). This tutorial will follow BusyBox ([https://en.wikipedia.org/wiki/BusyBox](https://en.wikipedia.org/wiki/BusyBox)) which is very similar.
 
 ### Clone BusyBox
@@ -120,7 +120,7 @@ exec /bin/sh
 ### Pack everything into cpio.gz archive
 `find . -print0 | cpio --null -ov --format=newc | gzip -9 > ../minimal-initramfs.cpio.gz`
 
-## Step 6: QEMU time! (this will launch a shell with a basic Quest 3 kernel virtual machine)
+## Step 5: QEMU time! (this will launch a shell with a basic Quest 3 kernel virtual machine)
 ```sh
 qemu-system-aarch64 \
   -M virt \

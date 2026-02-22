@@ -56,7 +56,7 @@ By downloading, installing, or using Repository Code, Users represent and warran
 
 (iii) they assume all risks associated therewith.
 
-iv) they shall comply with all applicable laws, rules, and regulations (federal, state, local, national, or international) in connection with the download, access, use, modification, or any other activity involving the Repository Code;
+(iv) they shall comply with all applicable laws, rules, and regulations (federal, state, local, national, or international) in connection with the download, access, use, modification, or any other activity involving the Repository Code;
 
 (v) they are solely responsible for determining the legality of their intended use in their own jurisdiction and for obtaining any necessary permissions, licenses, or approvals required by local law.
 
